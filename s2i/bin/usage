@@ -1,0 +1,6 @@
+#!/bin/bash
+
+cat <<EOF
+This is the S2I GitBook Server image.
+EOF
+

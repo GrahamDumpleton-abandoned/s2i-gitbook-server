@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -eo pipefail
+
+echo "---> Copying source files"
+
+mkdir -p ${HOME}/src
+
+rm -rf /tmp/src/.git*
+
+cp -Rf /tmp/src/. ${HOME}/src/
+
+rm -rf /tmp/src
+
+echo "---> Running GitBook build"
+
+set +eo pipefail
+
+source scl_source enable rh-nodejs4
+
+set -eo pipefail
+
+gitbook install
+
+gitbook build
+
+echo "---> Fix permissions on source files"
+
+chmod -Rf g+w ${HOME}/src || true
