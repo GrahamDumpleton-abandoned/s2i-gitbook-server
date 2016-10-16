@@ -1,0 +1,227 @@
+{
+    "kind": "Template",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "gitbook-server",
+        "annotations": {
+            "description": "GitBook Server",
+            "tags": "instant-app,gitbook"
+        }
+    },
+    "objects": [
+        {
+            "kind": "ImageStream",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}",
+                "labels": {
+                    "appid": "${APPLICATION_NAME}-${INSTANCE_ID}"
+                }
+            }
+        },
+        {
+            "kind": "ImageStream",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}-s2i",
+                "labels": {
+                    "appid": "${APPLICATION_NAME}-${INSTANCE_ID}"
+                }
+            },
+            "spec": {
+                "tags": [
+                    {
+                        "name": "2.3",
+                        "from": {
+                            "kind": "DockerImage",
+                            "name": "getwarped/s2i-gitbook-server:2.3"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "kind": "BuildConfig",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}",
+                "labels": {
+                    "appid": "${APPLICATION_NAME}-${INSTANCE_ID}"
+                }
+            },
+            "spec": {
+                "triggers": [
+                    {
+                        "type": "ConfigChange"
+                    },
+                    {
+                        "type": "ImageChange"
+                    }
+                ],
+                "source": {
+                    "type": "Git",
+                    "git": {
+                        "uri": "${SOURCE_REPOSITORY}"
+                    },
+                    "contextDir": "${SOURCE_DIRECTORY}"
+                },
+                "strategy": {
+                    "type": "Source",
+                    "sourceStrategy": {
+                        "from": {
+                            "kind": "ImageStreamTag",
+                            "name": "${APPLICATION_NAME}-s2i:2.3"
+                        }
+                    }
+                },
+                "output": {
+                    "to": {
+                        "kind": "ImageStreamTag",
+                        "name": "${APPLICATION_NAME}:latest"
+                    }
+                },
+                "resources": {
+                    "limits": {
+                        "memory": "${BUILD_MEMORY_LIMIT}"
+                    }
+                }
+            }
+        },
+        {
+            "kind": "DeploymentConfig",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}",
+                "labels": {
+                    "appid": "${APPLICATION_NAME}-${INSTANCE_ID}"
+                }
+            },
+            "spec": {
+                "strategy": {
+                    "type": "Rolling"
+                },
+                "triggers": [
+                    {
+                        "type": "ConfigChange"
+                    },
+                    {
+                        "type": "ImageChange",
+                        "imageChangeParams": {
+                            "automatic": true,
+                            "containerNames": [
+                                "${APPLICATION_NAME}"
+                            ],
+                            "from": {
+                                "kind": "ImageStreamTag",
+                                "name": "${APPLICATION_NAME}:latest"
+                            }
+                        }
+                    }
+                ],
+                "replicas": 1,
+                "selector": {
+                    "appid": "${APPLICATION_NAME}-${INSTANCE_ID}"
+                },
+                "template": {
+                    "metadata": {
+                        "labels": {
+                            "appid": "${APPLICATION_NAME}-${INSTANCE_ID}"
+                        }
+                    },
+                    "spec": {
+                        "containers": [
+                            {
+                                "name": "${APPLICATION_NAME}",
+                                "image": "${APPLICATION_NAME}:latest",
+                                "ports": [
+                                    {
+                                        "containerPort": 8080,
+                                        "protocol": "TCP"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "kind": "Service",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}",
+                "labels": {
+                    "appid": "${APPLICATION_NAME}-${INSTANCE_ID}"
+                }
+            },
+            "spec": {
+                "ports": [
+                    {
+                        "name": "8080-tcp",
+                        "protocol": "TCP",
+                        "port": 8080,
+                        "targetPort": 8080
+                    }
+                ],
+                "selector": {
+                    "appid": "${APPLICATION_NAME}-${INSTANCE_ID}"
+                }
+            }
+        },
+        {
+            "kind": "Route",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}",
+                "labels": {
+                    "appid": "${APPLICATION_NAME}-${INSTANCE_ID}"
+                }
+            },
+            "spec": {
+                "host": "",
+                "to": {
+                    "kind": "Service",
+                    "name": "${APPLICATION_NAME}",
+                    "weight": 100
+                },
+                "port": {
+                    "targetPort": "8080-tcp"
+                }
+            }
+        }
+    ],
+    "parameters": [
+        {
+            "name": "APPLICATION_NAME",
+            "description": "The name of the application.",
+            "value": "gitbook-server",
+            "from": "[a-zA-Z0-9]{10}",
+            "required": true
+        },
+        {
+            "name": "INSTANCE_ID",
+            "description": "ID to bind application components.",
+            "generate": "expression",
+            "from": "[a-z0-9]{5}",
+            "required": true
+        },
+        {
+            "name": "SOURCE_REPOSITORY",
+            "description": "Git repository for source.",
+            "value": "",
+            "required": true
+        },
+        {
+            "name": "SOURCE_DIRECTORY",
+            "description": "Sub-directory for source files.",
+            "value": "",
+            "required": false
+        },
+        {
+            "name": "BUILD_MEMORY_LIMIT",
+            "description": "Build time memory limit.",
+            "value": "512Mi",
+            "required": true
+        }
+    ]
+}
