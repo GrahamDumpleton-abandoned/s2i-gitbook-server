@@ -9,7 +9,7 @@ To use this with OpenShift, it is a simple matter of creating a new application 
 As an example, to build and host the awesome [Django tutorial](https://github.com/DjangoGirls/tutorial) created by [DjangoGirls](https://djangogirls.org), you only need run:
 
 ```
-oc new-app registry.gitlab.com/graham-dumpleton/s2i-gitbook-server~https://github.com/DjangoGirls/tutorial.git --name djangogirls
+oc new-app getwarped/s2i-gitbook-server:3.2~https://github.com/DjangoGirls/tutorial.git --name djangogirls
 
 oc expose svc/djangogirls
 ```
@@ -21,7 +21,7 @@ To have any changes to your document source automatically redeployed when change
 To create a standalone Docker-formatted image, you need to [install](https://github.com/openshift/source-to-image/releases) the ``s2i`` program from the Source-to-Image (S2I) project locally. Once you have this installed, you would run within your Git repository:
 
 ```
-s2i build . registry.gitlab.com/graham-dumpleton/s2i-gitbook-server mygitbooksite
+s2i build . getwarped/s2i-gitbook-server:3.2 mygitbooksite
 ```
 
 In this case this will create a Docker-formatted image called ``mygitbooksite``. You can then run the image using:
