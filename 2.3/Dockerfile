@@ -23,7 +23,7 @@ RUN rpmkeys --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7 && \
 # command 'docker run -u'.
 
 RUN mkdir -p /opt/app-root && \
-    chown -R 1001:0 /opt/app-root && \
+    chown 1001:0 /opt/app-root && \
     useradd -u 1001 -r -g 0 -d /opt/app-root -s /sbin/nologin \
             -c "Default Application User" default
 
@@ -46,6 +46,20 @@ EXPOSE 8080
 RUN source scl_source enable rh-nodejs4 && \
     npm install -g gitbook-cli@2.3.0
 
+# Copy into place S2I builder scripts and label the Docker image so that
+# the 's2i' program knows where to find them.
+
+COPY s2i /opt/app-root/s2i
+
+LABEL io.k8s.description="S2I builder for hosting gitbook site." \
+      io.k8s.display-name="GitBook Server" \
+      io.openshift.expose-services="8080:http" \
+      io.openshift.tags="builder,gitbook" \
+      io.openshift.s2i.scripts-url="image:///opt/app-root/s2i/bin"
+
+RUN chown -R 1001:0 /opt/app-root/s2i && \
+    find /opt/app-root/s2i -type d -exec chmod g+ws {} \;
+
 # Ensure container runs as non root account.
 
 USER 1001
@@ -59,17 +73,6 @@ ENV HOME=/opt/app-root
 
 RUN source scl_source enable rh-nodejs4 && \
     gitbook fetch latest
-
-# Copy into place S2I builder scripts and label the Docker image so that
-# the 's2i' program knows where to find them.
-
-COPY s2i /opt/app-root/s2i
-
-LABEL io.k8s.description="S2I builder for hosting gitbook site." \
-      io.k8s.display-name="GitBook Server" \
-      io.openshift.expose-services="8080:http" \
-      io.openshift.tags="builder,gitbook" \
-      io.openshift.s2i.scripts-url="image:///opt/app-root/s2i/bin"
 
 # Create the 'src' directory where the source code will reside. Fixup
 # all the directories under the account so they are group writable to
