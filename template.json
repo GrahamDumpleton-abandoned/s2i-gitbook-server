@@ -213,7 +213,7 @@
         },
         {
             "name": "SOURCE_DIRECTORY",
-            "description": "Sub-directory for source files.",
+            "description": "Sub-directory of repository for source files.",
             "value": "",
             "required": false
         },

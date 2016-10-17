@@ -51,7 +51,7 @@ RUN source scl_source enable rh-nodejs4 && \
 
 COPY s2i /opt/app-root/s2i
 
-LABEL io.k8s.description="S2I builder for hosting gitbook site." \
+LABEL io.k8s.description="S2I builder for hosting GitBook site." \
       io.k8s.display-name="GitBook Server" \
       io.openshift.expose-services="8080:http" \
       io.openshift.tags="builder,gitbook" \
