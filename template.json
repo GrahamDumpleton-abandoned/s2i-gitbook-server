@@ -15,7 +15,7 @@
             "metadata": {
                 "name": "${APPLICATION_NAME}",
                 "labels": {
-                    "appid": "${APPLICATION_NAME}-${INSTANCE_ID}"
+                    "appid": "gitbook-server-${APPLICATION_NAME}"
                 }
             }
         },
@@ -25,7 +25,7 @@
             "metadata": {
                 "name": "${APPLICATION_NAME}-s2i",
                 "labels": {
-                    "appid": "${APPLICATION_NAME}-${INSTANCE_ID}"
+                    "appid": "gitbook-server-${APPLICATION_NAME}"
                 }
             },
             "spec": {
@@ -46,7 +46,7 @@
             "metadata": {
                 "name": "${APPLICATION_NAME}",
                 "labels": {
-                    "appid": "${APPLICATION_NAME}-${INSTANCE_ID}"
+                    "appid": "gitbook-server-${APPLICATION_NAME}"
                 }
             },
             "spec": {
@@ -93,7 +93,7 @@
             "metadata": {
                 "name": "${APPLICATION_NAME}",
                 "labels": {
-                    "appid": "${APPLICATION_NAME}-${INSTANCE_ID}"
+                    "appid": "gitbook-server-${APPLICATION_NAME}"
                 }
             },
             "spec": {
@@ -120,12 +120,13 @@
                 ],
                 "replicas": 1,
                 "selector": {
-                    "appid": "${APPLICATION_NAME}-${INSTANCE_ID}"
+                    "deploymentconfig": "${APPLICATION_NAME}"
                 },
                 "template": {
                     "metadata": {
                         "labels": {
-                            "appid": "${APPLICATION_NAME}-${INSTANCE_ID}"
+                            "appid": "gitbook-server-${APPLICATION_NAME}",
+                            "deploymentconfig": "${APPLICATION_NAME}"
                         }
                     },
                     "spec": {
@@ -151,7 +152,7 @@
             "metadata": {
                 "name": "${APPLICATION_NAME}",
                 "labels": {
-                    "appid": "${APPLICATION_NAME}-${INSTANCE_ID}"
+                    "appid": "gitbook-server-${APPLICATION_NAME}"
                 }
             },
             "spec": {
@@ -164,7 +165,7 @@
                     }
                 ],
                 "selector": {
-                    "appid": "${APPLICATION_NAME}-${INSTANCE_ID}"
+                    "deploymentconfig": "${APPLICATION_NAME}"
                 }
             }
         },
@@ -174,7 +175,7 @@
             "metadata": {
                 "name": "${APPLICATION_NAME}",
                 "labels": {
-                    "appid": "${APPLICATION_NAME}-${INSTANCE_ID}"
+                    "appid": "gitbook-server-${APPLICATION_NAME}"
                 }
             },
             "spec": {
